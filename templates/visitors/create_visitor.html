@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Log Visitor - Smart Society{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-sm border-top border-dark border-4">
+            <h3 class="mb-4"><i class="fa-solid fa-clipboard-user me-2 text-dark"></i>Log New Entry</h3>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Visitor Full Name</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Visiting Flat</label>
+                        <select name="flat" class="form-select" required>
+                            <option value="" disabled selected>Select Flat...</option>
+                            {% for flat in flats %}
+                                <option value="{{ flat.id }}">{{ flat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Visitor Type</label>
+                        <select name="visitor_type" class="form-select" required>
+                            {% for key, val in visitor_types %}
+                                <option value="{{ key }}">{{ val }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Purpose of Visit</label>
+                    <input type="text" name="purpose" class="form-control" required placeholder="e.g. Amazon Delivery, Meeting">
+                </div>
+                
+                <button type="submit" class="btn btn-dark w-100 fw-bold"><i class="fa-solid fa-right-to-bracket me-2"></i>Allow Entry</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

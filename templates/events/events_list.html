@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Events - Smart Society{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fa-solid fa-calendar-star me-2 text-success"></i>Society Events</h2>
+    <div class="d-flex gap-2">
+        <a href="{% url 'events:polls_list' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-square-poll-vertical me-2"></i>Active Polls</a>
+        {% if user.is_secretary %}
+            <a href="{% url 'events:create_event' %}" class="btn btn-success"><i class="fa-solid fa-plus me-2"></i>Create Event</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for event in events %}
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm border-0 border-start border-success border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="badge bg-light text-dark shadow-sm px-3 py-2"><i class="fa-solid fa-calendar-day text-success me-2"></i>{{ event.date|date:"d M Y" }}</span>
+                    <span class="badge bg-light text-dark shadow-sm px-3 py-2"><i class="fa-solid fa-clock text-success me-2"></i>{{ event.time|time:"H:i" }}</span>
+                </div>
+                <h4 class="card-title mt-3">{{ event.title }}</h4>
+                <p class="text-muted"><i class="fa-solid fa-location-dot me-2 text-danger"></i>{{ event.venue }}</p>
+                <p class="card-text text-muted">{{ event.description|truncatewords:20 }}</p>
+                
+                <hr>
+                
+                {% if user.is_resident %}
+                    <form method="post" action="{% url 'events:rsvp_event' event.id %}" class="d-flex align-items-center gap-2">
+                        {% csrf_token %}
+                        <select name="status" class="form-select form-select-sm" style="width: 140px;">
+                            <option value="GOING" {% if event.id in user_rsvp_ids %}selected{% endif %}>Going</option>
+                            <option value="NOT_GOING" {% if event.id not in user_rsvp_ids %}selected{% endif %}>Not Going</option>
+                        </select>
+                        <input type="number" name="guests_count" class="form-control form-select-sm" style="width: 100px;" placeholder="Guests" min="0" value="0">
+                        <button type="submit" class="btn btn-sm btn-success">Save RSVP</button>
+                    </form>
+                {% else %}
+                    <p class="small text-muted mb-0"><i class="fa-solid fa-users me-1"></i>{{ event.rsvps.count }} RSVP'd</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="text-muted fs-5">No upcoming events scheduled.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

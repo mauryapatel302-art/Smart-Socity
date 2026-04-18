@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}File Complaint - Smart Society{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card p-4 shadow-sm border-top border-danger border-4">
+            <h3 class="mb-4"><i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>File a New Complaint</h3>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Title</label>
+                    <input type="text" name="title" class="form-control" placeholder="Brief issue description" required>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Category</label>
+                        <select name="category" class="form-select" required>
+                            {% for key, name in categories %}
+                                <option value="{{ key }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Attach Photo (Optional)</label>
+                        <input type="file" name="photo" class="form-control" accept="image/*">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Detailed Description</label>
+                    <textarea name="description" rows="4" class="form-control" required placeholder="Please provide location and details..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-danger w-100 fw-bold">Submit Complaint</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

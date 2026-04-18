@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}My Profile - Smart Society{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-7 col-lg-6">
+        <!-- Profile Card -->
+        <div class="card border-0 shadow-lg overflow-hidden" style="border-radius:24px; background:#182038;">
+            <!-- Top Banner/Header -->
+            <div class="p-5 text-center position-relative" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);">
+                <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1;"></div>
+                
+                <div class="position-relative">
+                    {% if user.profile_photo %}
+                        <img src="{{ user.profile_photo.url }}" alt="Profile Photo" 
+                             class="rounded-circle border border-4 border-white shadow-lg mb-3" 
+                             style="width: 130px; height: 130px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center border border-4 border-white shadow-lg mb-3"
+                             style="width: 130px; height: 130px;">
+                            <i class="fa-solid fa-user fa-4x text-primary" style="opacity: 0.8;"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <h3 class="text-white fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h3>
+                    <span class="badge rounded-pill px-3 py-2" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); font-size: 0.75rem; letter-spacing: 1px; text-uppercase: true;">
+                        {{ user.get_role_display }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Profile Details -->
+            <div class="card-body p-4 p-md-5">
+                <div class="row g-4">
+                    <div class="col-sm-6">
+                        <label class="text-muted small text-uppercase fw-bold mb-1" style="letter-spacing: 0.5px;">Username</label>
+                        <p class="h6 fw-semibold text-white mb-0">{{ user.username }}</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-muted small text-uppercase fw-bold mb-1" style="letter-spacing: 0.5px;">Email Address</label>
+                        <p class="h6 fw-semibold text-white mb-0">{{ user.email|default:"Not provided" }}</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-muted small text-uppercase fw-bold mb-1" style="letter-spacing: 0.5px;">Phone Number</label>
+                        <p class="h6 fw-semibold text-white mb-0">{{ user.phone|default:"Not provided" }}</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-muted small text-uppercase fw-bold mb-1" style="letter-spacing: 0.5px;">Flat / Assignment</label>
+                        <p class="h6 fw-semibold text-white mb-0">
+                            {% if user.flat %}
+                                {{ user.flat }}
+                            {% else %}
+                                <span class="text-muted italic opacity-50">Resident profile incomplete</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <hr class="my-5" style="border-color: rgba(255,255,255,0.1);">
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        Member since {{ user.date_joined|date:"M Y" }}
+                    </div>
+                    <a href="{% url 'profile_edit' %}" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm">
+                        <i class="fa-solid fa-pen-to-square me-2"></i>Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

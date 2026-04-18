@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block title %}Resident Dashboard - Smart Society{% endblock %}
+
+{% block content %}
+
+<!-- Main Content: Nav Cards | Chart + Info -->
+<div class="row g-4">
+
+    <!-- LEFT: 2x3 Navigation Card Grid (5 nav + 1 bill summary) -->
+    <div class="col-lg-6">
+        <div class="row row-cols-2 g-3">
+
+            <div class="col">
+                <a href="{% url 'core:notices' %}" class="text-decoration-none">
+                    <div class="card h-100 text-center p-3 nav-card hover-lift nc-notices" style="min-height: 140px;">
+                        <span style="font-size: 2.6rem;">📢</span>
+                        <h6 class="text-white fw-bold mt-2 mb-1">Notices</h6>
+                        <p class="text-white-50 small mb-0" style="font-size:0.72rem;">Latest announcements</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="{% url 'complaints:list' %}" class="text-decoration-none">
+                    <div class="card h-100 text-center p-3 nav-card hover-lift nc-complaints" style="min-height: 140px;">
+                        <span style="font-size: 2.6rem;">🛠️</span>
+                        <h6 class="text-white fw-bold mt-2 mb-1">Complaints</h6>
+                        <p class="text-white-50 small mb-0" style="font-size:0.72rem;">File & track requests</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="{% url 'events:events_list' %}" class="text-decoration-none">
+                    <div class="card h-100 text-center p-3 nav-card hover-lift nc-events" style="min-height: 140px;">
+                        <span style="font-size: 2.6rem;">📅</span>
+                        <h6 class="text-white fw-bold mt-2 mb-1">Events</h6>
+                        <p class="text-white-50 small mb-0" style="font-size:0.72rem;">Discover & RSVP events</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="{% url 'core:directory' %}" class="text-decoration-none">
+                    <div class="card h-100 text-center p-3 nav-card hover-lift nc-directory" style="min-height: 140px;">
+                        <span style="font-size: 2.6rem;">👥</span>
+                        <h6 class="text-white fw-bold mt-2 mb-1">Directory</h6>
+                        <p class="text-white-50 small mb-0" style="font-size:0.72rem;">Residents & contacts</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="{% url 'visitors:my_gate_passes' %}" class="text-decoration-none">
+                    <div class="card h-100 text-center p-3 nav-card hover-lift nc-passes" style="min-height: 140px;">
+                        <span style="font-size: 2.6rem;">🎟️</span>
+                        <h6 class="text-white fw-bold mt-2 mb-1">Gate Passes</h6>
+                        <p class="text-white-50 small mb-0" style="font-size:0.72rem;">Manage guest entry</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 6th slot: Bill Status mini-card -->
+            <div class="col">
+                <a href="{% url 'my_bills' %}" class="text-decoration-none">
+                    <div class="card h-100 text-center p-3 nav-card hover-lift nc-bills" style="min-height: 140px;">
+                        <span style="font-size: 2.6rem;">💰</span>
+                        <h6 class="text-white fw-bold mt-2 mb-1">My Bills</h6>
+                        <p class="text-white-50 small mb-0" style="font-size:0.72rem;">
+                            {% if my_unpaid_bills_count > 0 %}
+                                {{ my_unpaid_bills_count }} pending due
+                            {% else %}
+                                All clear! ✅
+                            {% endif %}
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RIGHT: Chart + Sections -->
+    <div class="col-lg-6 d-flex flex-column gap-4">
+
+        <!-- Recent Notices -->
+        <div class="card border-0 shadow-sm p-4" style="border-radius: 16px;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-muted text-uppercase mb-0" style="letter-spacing:0.06em; font-size:0.78rem;">📋 Recent Notices</h6>
+                <a href="{% url 'core:notices' %}" class="btn btn-sm btn-outline-primary" style="font-size:0.75rem; border-radius:20px;">View All</a>
+            </div>
+            <div class="d-flex flex-column gap-2">
+                {% for notice in recent_notices %}
+                <div class="d-flex align-items-start gap-3 p-2 rounded-3" style="background:#f9f9fb;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                         style="width:36px;height:36px;background:linear-gradient(135deg,#0093E9,#80D0C7);color:white;">
+                        <i class="fa-solid fa-bullhorn" style="font-size:0.8rem;"></i>
+                    </div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="fw-semibold mb-0 text-truncate" style="font-size:0.85rem;">{{ notice.title }}</p>
+                        <p class="text-muted mb-0" style="font-size:0.72rem;">
+                            <span class="badge bg-secondary-subtle text-secondary me-1" style="font-size:0.65rem;">{{ notice.category }}</span>
+                            {{ notice.created_at|date:"M d, Y" }}
+                        </p>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-3 text-muted">
+                    <i class="fa-regular fa-bell-slash fa-2x mb-2"></i>
+                    <p class="mb-0" style="font-size:0.85rem;">No notices yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="card border-0 shadow-sm p-4" style="border-radius: 16px;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-muted text-uppercase mb-0" style="letter-spacing:0.06em; font-size:0.78rem;">🎉 Upcoming Events</h6>
+                <a href="{% url 'events:events_list' %}" class="btn btn-sm btn-outline-success" style="font-size:0.75rem; border-radius:20px;">View All</a>
+            </div>
+            <div class="d-flex flex-column gap-2">
+                {% for event in upcoming_events %}
+                <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background:#f9f9fb;">
+                    <div class="text-center flex-shrink-0 rounded-2 p-1" style="background:linear-gradient(135deg,#4776E6,#8E54E9);min-width:44px;">
+                        <p class="text-white fw-bold mb-0" style="font-size:1rem; line-height:1.1;">{{ event.date|date:"d" }}</p>
+                        <p class="text-white-50 mb-0" style="font-size:0.65rem;">{{ event.date|date:"M" }}</p>
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="fw-semibold mb-0 text-truncate" style="font-size:0.85rem;">{{ event.title }}</p>
+                        <p class="text-muted mb-0" style="font-size:0.72rem;"><i class="fa-solid fa-location-dot me-1"></i>{{ event.venue }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-3 text-muted">
+                    <i class="fa-regular fa-calendar-xmark fa-2x mb-2"></i>
+                    <p class="mb-0" style="font-size:0.85rem;">No upcoming events.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+

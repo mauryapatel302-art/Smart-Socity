@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Billing Status Tracker - Smart Society{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i>Billing Status Tracker</h2>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i>Back to Dashboard</a>
+</div>
+
+<div class="card shadow-sm border-0 border-top border-primary border-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="ps-4">Flat Number</th>
+                        <th scope="col">Resident Name</th>
+                        <th scope="col">Billing Cycle</th>
+                        <th scope="col">Amount Due</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in bills %}
+                    <tr>
+                        <td class="ps-4 py-3 fw-bold text-dark"><i class="fa-solid fa-door-open text-primary me-2"></i>{{ bill.flat }}</td>
+                        <td>
+                            {% if bill.flat.residents.all %}
+                                {% for res in bill.flat.residents.all %}
+                                    <div class="mb-1">{{ res.get_full_name|default:res.username }}</div>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted fst-italic">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary"><i class="fa-solid fa-calendar me-1"></i>{{ bill.month }} {{ bill.year }}</span>
+                        </td>
+                        <td class="fw-bold">
+                            ₹{{ bill.amount }}
+                        </td>
+                        <td>
+                            {% if bill.is_paid %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1"><i class="fa-solid fa-check me-1"></i>Paid</span>
+                            {% else %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-1"><i class="fa-solid fa-times me-1"></i>Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="fa-regular fa-folder-open fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Building Bills Found</h5>
+                            <p class="text-muted mb-0">No maintenance bills have been generated yet.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

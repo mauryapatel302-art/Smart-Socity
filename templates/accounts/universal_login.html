@@ -1,0 +1,377 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Smart Society</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-deep: #0f131a;
+            --bg-panel: #161c26;
+            --accent-purple: #7c3aed;
+            --accent-purple-hover: #6d28d9;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #2d3748;
+            --input-bg: #1e2532;
+            
+            --accent-resident: #0f766e;
+            --accent-guard: #c2410c;
+            --accent-secretary: #4338ca;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* --- Left Panel (Imagery) --- */
+        .left-panel {
+            width: 50%;
+            height: 100vh;
+            position: relative;
+            background: url('/media/backgrounds/signup_bg.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3rem;
+        }
+
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(15, 19, 26, 0.4), rgba(15, 19, 26, 0.7));
+            z-index: 1;
+        }
+
+        .left-panel > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-purple);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .back-pill {
+            position: absolute;
+            top: 3rem;
+            right: 3rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .back-pill:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
+        .tagline-section {
+            max-width: 400px;
+        }
+
+        .tagline-section h2 {
+            font-size: 2.8rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        /* --- Right Panel (Form) --- */
+        .right-panel {
+            width: 50%;
+            height: 100vh;
+            background-color: var(--bg-panel);
+            padding: 4rem 10% 2rem 10%;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .form-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .form-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+        }
+
+        .form-header a {
+            color: var(--accent-purple);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Role Selector Styles */
+        .role-selector {
+            background: var(--input-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            display: flex;
+            padding: 0.4rem;
+            position: relative;
+            margin-bottom: 2.5rem;
+        }
+
+        .role-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .role-btn.active {
+            color: white;
+        }
+
+        .role-slider {
+            position: absolute;
+            top: 0.35rem;
+            left: 0.35rem;
+            bottom: 0.35rem;
+            width: calc((100% - 0.7rem) / 3);
+            background: var(--accent-purple);
+            border-radius: 10px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            pointer-events: none;
+        }
+
+        [data-role="RESIDENT"] .role-slider { transform: translateX(0); background: var(--accent-resident); box-shadow: 0 4px 15px rgba(15, 118, 110, 0.3); }
+        [data-role="GUARD"] .role-slider { transform: translateX(100%); background: var(--accent-guard); box-shadow: 0 4px 15px rgba(194, 65, 12, 0.3); }
+        [data-role="SECRETARY"] .role-slider { transform: translateX(200%); background: var(--accent-secretary); box-shadow: 0 4px 15px rgba(67, 56, 202, 0.3); }
+
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.2rem 1rem 0.6rem;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .floating-label {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            pointer-events: none;
+            font-size: 1rem;
+        }
+
+        .input-field:focus ~ .floating-label,
+        .input-field:not(:placeholder-shown) ~ .floating-label {
+            top: 0.4rem;
+            font-size: 0.75rem;
+            color: var(--accent-purple);
+        }
+
+        .input-field:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--accent-purple);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.2);
+        }
+
+        .forgot-pass {
+            display: block;
+            text-align: right;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .forgot-pass:hover {
+            color: white;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 1024px) {
+            .left-panel { display: none; }
+            .right-panel { width: 100%; padding: 4rem 15%; }
+        }
+    </style>
+</head>
+<body data-role="RESIDENT">
+
+    <div class="left-panel">
+        <div class="logo-section">
+            <div class="logo-icon">S</div>
+            <span class="logo-text">Smart Society</span>
+        </div>
+
+        <a href="/" class="back-pill">Back to home &rarr;</a>
+
+        <div class="tagline-section">
+            <h2>Seamless Living, Smarter Communities.</h2>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="form-header">
+            <h1>Login to Portal</h1>
+            <p>New member? <a href="#" id="dynamicSignupLink">Create an account</a></p>
+        </div>
+
+        <div class="role-selector">
+            <div class="role-slider"></div>
+            <button type="button" class="role-btn active" onclick="setRole('RESIDENT')">Resident</button>
+            <button type="button" class="role-btn" onclick="setRole('GUARD')">Guard</button>
+            <button type="button" class="role-btn" onclick="setRole('SECRETARY')">Secretary</button>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-error" style="display: block;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" id="loginForm" class="form-grid">
+            {% csrf_token %}
+            <input type="hidden" name="role" id="roleInput" value="RESIDENT">
+            
+            <div class="form-group">
+                <input type="text" name="username" class="input-field" placeholder=" " required id="id_username">
+                <label class="floating-label" for="id_username">Username</label>
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="password" class="input-field" placeholder=" " required id="id_password">
+                <label class="floating-label" for="id_password">Password</label>
+            </div>
+
+            <a href="#" class="forgot-pass">Forgot Password?</a>
+
+            <button type="submit" class="login-btn" id="submitBtn">Sign In</button>
+        </form>
+    </div>
+
+    <script>
+        const roleLabels = {
+            'RESIDENT': { title: 'Resident', signup: '/signup/resident/' },
+            'GUARD': { title: 'Security Guard', signup: '/signup/guard/' },
+            'SECRETARY': { title: 'Secretary', signup: '/signup/secretary/' }
+        };
+
+        function setRole(role) {
+            document.body.setAttribute('data-role', role);
+            document.getElementById('roleInput').value = role;
+            
+            // Update Active Buttons
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.textContent.toUpperCase() === (role === 'GUARD' ? 'GUARD' : role)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update Signup Link
+            document.getElementById('dynamicSignupLink').href = roleLabels[role].signup;
+        }
+
+        // Initialize first role selection
+        setRole('RESIDENT');
+    </script>
+</body>
+</html>

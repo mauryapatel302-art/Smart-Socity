@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Create Gate Pass - Smart Society{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><span style="font-size:1.6rem;">🎟️</span> Create Gate Pass</h2>
+    <a href="{% url 'visitors:my_gate_passes' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="fa-solid fa-arrow-left me-1"></i>Back
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Type selector cards -->
+    <div class="col-md-6">
+        <label class="d-block text-decoration-none" id="label-temp">
+            <input type="radio" name="pass_type_select" value="TEMPORARY" id="radio-temp" class="d-none" checked>
+            <div class="card border-0 shadow-sm p-4 text-center hover-lift" id="card-temp"
+                 style="border-radius:16px; cursor:pointer; background:linear-gradient(135deg,#f7971e,#ffd200); transition:0.2s ease;">
+                <span style="font-size:2.8rem;">⏱️</span>
+                <h5 class="text-white fw-bold mt-2 mb-1">Temporary Pass</h5>
+                <p class="mb-0" style="color:rgba(255,255,255,0.85);font-size:0.82rem;">Valid only on the selected date. Great for one-time visitors, deliveries, or guests.</p>
+            </div>
+        </label>
+    </div>
+    <div class="col-md-6">
+        <label class="d-block text-decoration-none" id="label-perm">
+            <input type="radio" name="pass_type_select" value="PERMANENT" id="radio-perm" class="d-none">
+            <div class="card border-0 shadow-sm p-4 text-center hover-lift" id="card-perm"
+                 style="border-radius:16px; cursor:pointer; background:rgba(255,255,255,0.07); transition:0.2s ease;">
+                <span style="font-size:2.8rem;">🔑</span>
+                <h5 class="text-white fw-bold mt-2 mb-1">Permanent Pass</h5>
+                <p class="mb-0" style="color:rgba(255,255,255,0.85);font-size:0.82rem;">Valid until you cancel it. Ideal for family members, maids, or regular staff who visit daily.</p>
+            </div>
+        </label>
+    </div>
+</div>
+
+<!-- Form -->
+<div class="card border-0 shadow-sm p-4" style="border-radius:16px;">
+    <form method="post" action="{% url 'visitors:create_gate_pass' %}">
+        {% csrf_token %}
+        <input type="hidden" name="pass_type" id="pass_type_hidden" value="TEMPORARY">
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small text-muted text-uppercase" style="letter-spacing:0.06em;">Visitor Name <span class="text-danger">*</span></label>
+                <input type="text" name="visitor_name" class="form-control" placeholder="e.g. Ravi Shah" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small text-muted text-uppercase" style="letter-spacing:0.06em;">Phone Number</label>
+                <input type="tel" name="phone" class="form-control" placeholder="Optional contact number">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small text-muted text-uppercase" style="letter-spacing:0.06em;">Purpose / Relation</label>
+                <input type="text" name="purpose" class="form-control" placeholder="e.g. Family, Maid, Plumber">
+            </div>
+            <div class="col-md-6" id="date-field">
+                <label class="form-label fw-semibold small text-muted text-uppercase" style="letter-spacing:0.06em;">Valid Date <span class="text-danger">*</span></label>
+                <input type="date" name="expected_date" class="form-control" value="{{ today }}" min="{{ today }}">
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-3">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fa-solid fa-ticket me-2"></i>Create Gate Pass
+            </button>
+            <a href="{% url 'visitors:my_gate_passes' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const radios    = document.querySelectorAll('input[name="pass_type_select"]');
+    const cardTemp  = document.getElementById('card-temp');
+    const cardPerm  = document.getElementById('card-perm');
+    const hiddenInput = document.getElementById('pass_type_hidden');
+    const dateField = document.getElementById('date-field');
+
+    const activeStyle  = 'linear-gradient(135deg, #f7971e, #ffd200)';
+    const permActive   = 'linear-gradient(135deg, #11998e, #38ef7d)';
+    const inactiveStyle = 'rgba(255,255,255,0.07)';
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            const isPerm = document.getElementById('radio-perm').checked;
+            hiddenInput.value = isPerm ? 'PERMANENT' : 'TEMPORARY';
+
+            cardTemp.style.background = isPerm ? inactiveStyle : activeStyle;
+            cardPerm.style.background = isPerm ? permActive : inactiveStyle;
+            dateField.style.display   = isPerm ? 'none' : 'block';
+        });
+    });
+</script>
+{% endblock %}

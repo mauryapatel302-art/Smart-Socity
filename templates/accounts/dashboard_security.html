@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+{% block title %}Security Dashboard - Smart Society{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">🛡️ Gate Security Console</h2>
+    <a href="{% url 'visitors:create_visitor' %}" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus me-2"></i>Log New Visitor
+    </a>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 text-center p-3" style="border-radius:14px; background:linear-gradient(135deg,#00c6fb,#005bea);">
+            <p class="text-white-50 small fw-semibold text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.07em;">Currently Inside</p>
+            <h2 class="text-white fw-bold mb-0">{{ active_count }}</h2>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 text-center p-3" style="border-radius:14px; background:linear-gradient(135deg,#11998e,#38ef7d);">
+            <p class="text-white-50 small fw-semibold text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.07em;">Total Visitors Today</p>
+            <h2 class="text-white fw-bold mb-0">{{ total_today }}</h2>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 text-center p-3" style="border-radius:14px; background:linear-gradient(135deg,#f7971e,#ffd200);">
+            <p class="text-white-50 small fw-semibold text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.07em;">Temp Passes Today</p>
+            <h2 class="text-white fw-bold mb-0">{{ temp_pass_count }}</h2>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 text-center p-3" style="border-radius:14px; background:linear-gradient(135deg,#8e2de2,#4a00e0);">
+            <p class="text-white-50 small fw-semibold text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.07em;">Permanent Passes</p>
+            <h2 class="text-white fw-bold mb-0">{{ perm_pass_count }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <!-- LEFT: Visitor Logs -->
+    <div class="col-lg-7 d-flex flex-column gap-4">
+
+        <!-- Currently Inside -->
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0">🟢 Currently Inside</h6>
+                <span class="badge bg-success rounded-pill">{{ active_count }} active</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Name</th>
+                            <th>Flat</th>
+                            <th>Type</th>
+                            <th>Entry</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in active_visitors %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-semibold">{{ v.name }}</span>
+                                <br><small class="text-muted">{{ v.purpose }}</small>
+                            </td>
+                            <td>{{ v.flat }}</td>
+                            <td><span class="badge bg-secondary rounded-pill" style="font-size:0.68rem;">{{ v.get_visitor_type_display }}</span></td>
+                            <td>{{ v.entry_time|time:"H:i" }}</td>
+                            <td>
+                                <form method="post" action="{% url 'visitors:checkout_visitor' v.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-outline-danger">Check Out</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center py-3 text-muted">No active visitors inside.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- All Visitors Today -->
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body p-3">
+                <h6 class="fw-bold mb-0">📋 All Visitors Today</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Name</th>
+                            <th>Flat</th>
+                            <th>Type</th>
+                            <th>In</th>
+                            <th>Out</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in all_visitors_today %}
+                        <tr>
+                            <td class="ps-4 fw-semibold">{{ v.name }}</td>
+                            <td>{{ v.flat }}</td>
+                            <td><span class="badge bg-secondary rounded-pill" style="font-size:0.68rem;">{{ v.get_visitor_type_display }}</span></td>
+                            <td>{{ v.entry_time|time:"H:i" }}</td>
+                            <td>
+                                {% if v.exit_time %}{{ v.exit_time|time:"H:i" }}
+                                {% else %}<span class="badge bg-success rounded-pill" style="font-size:0.68rem;">Inside</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center py-3 text-muted">No visitors recorded today.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT: Gate Pass Nav Cards -->
+    <div class="col-lg-5 d-flex flex-column gap-4">
+
+        <!-- ⏱️ Temporary Passes Card -->
+        <button type="button" class="border-0 p-0 bg-transparent w-100 text-start"
+                data-bs-toggle="modal" data-bs-target="#modalTempPasses">
+            <div class="card border-0 nc-passes text-center p-4 nav-card hover-lift" style="min-height:145px;">
+                <span style="font-size:2.6rem;">⏱️</span>
+                <h5 class="text-white fw-bold mt-2 mb-1">Temporary Passes</h5>
+                <p class="mb-0" style="color:rgba(255,255,255,0.85); font-size:0.78rem;">
+                    {{ temp_pass_count }} pass{{ temp_pass_count|pluralize }} valid today
+                </p>
+            </div>
+        </button>
+
+        <!-- 🔑 Permanent Passes Card -->
+        <button type="button" class="border-0 p-0 bg-transparent w-100 text-start"
+                data-bs-toggle="modal" data-bs-target="#modalPermPasses">
+            <div class="card border-0 nc-bills text-center p-4 nav-card hover-lift" style="min-height:145px;">
+                <span style="font-size:2.6rem;">🔑</span>
+                <h5 class="text-white fw-bold mt-2 mb-1">Permanent Passes</h5>
+                <p class="mb-0" style="color:rgba(255,255,255,0.85); font-size:0.78rem;">
+                    {{ perm_pass_count }} active &bull; {{ perm_by_flat|length }} flat{{ perm_by_flat|length|pluralize }}
+                </p>
+            </div>
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- MODAL 1: Temporary Passes                              -->
+<!-- ─────────────────────────────────────────────────────── -->
+<div class="modal fade" id="modalTempPasses" tabindex="-1" aria-labelledby="modalTempLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0" style="border-radius:18px; background:#182038;">
+            <!-- Header -->
+            <div class="modal-header border-0 p-4 pb-2" style="background:linear-gradient(135deg,#f7971e,#ffd200); border-radius:18px 18px 0 0;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalTempLabel">⏱️ Temporary Gate Passes</h5>
+                    <p class="mb-0 text-white" style="opacity:0.85; font-size:0.8rem;">Valid today only — {{ temp_pass_count }} pass{{ temp_pass_count|pluralize }}</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+            </div>
+            <!-- Search -->
+            <div class="px-4 pt-3 pb-2">
+                <div class="input-group">
+                    <span class="input-group-text border-0" style="background:rgba(255,255,255,0.08);">
+                        <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                    </span>
+                    <input type="text" id="searchTemp" class="form-control border-0"
+                           placeholder="Search visitor name, flat, purpose…"
+                           style="background:rgba(255,255,255,0.08); color:#e8eaf0;">
+                </div>
+            </div>
+            <!-- Body -->
+            <div class="modal-body px-4 py-2">
+                <div id="tempPassList" class="d-flex flex-column gap-2">
+                    {% for p in today_temp_passes %}
+                    <div class="temp-pass-item d-flex align-items-start gap-3 p-3 rounded-3"
+                         data-search="{{ p.visitor_name|lower }} {{ p.flat|lower }} {{ p.purpose|lower }} {{ p.phone|lower }}"
+                         style="background:rgba(255,255,255,0.05);">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:42px;height:42px;background:linear-gradient(135deg,#f7971e,#ffd200);">
+                            <i class="fa-solid fa-person text-white"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <p class="fw-semibold mb-1">{{ p.visitor_name }}</p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge rounded-pill" style="background:rgba(255,255,255,0.1); font-size:0.72rem;">
+                                    <i class="fa-solid fa-building fa-xs me-1"></i>{{ p.flat }}
+                                </span>
+                                {% if p.purpose %}
+                                <span class="badge rounded-pill" style="background:rgba(255,255,255,0.1); font-size:0.72rem;">
+                                    <i class="fa-solid fa-tag fa-xs me-1"></i>{{ p.purpose }}
+                                </span>
+                                {% endif %}
+                                {% if p.phone %}
+                                <span class="badge rounded-pill" style="background:rgba(255,255,255,0.1); font-size:0.72rem;">
+                                    <i class="fa-solid fa-phone fa-xs me-1"></i>{{ p.phone }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <span class="badge bg-warning text-dark rounded-pill align-self-start mt-1">Today</span>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fa-regular fa-calendar-xmark fa-3x mb-3"></i>
+                        <p class="mb-0">No temporary passes for today.</p>
+                    </div>
+                    {% endfor %}
+
+                    <!-- No results message (hidden by default) -->
+                    <div id="tempNoResults" class="text-center py-4 text-muted d-none">
+                        <i class="fa-solid fa-magnifying-glass fa-2x mb-2"></i>
+                        <p class="mb-0">No passes match your search.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- MODAL 2: Permanent Passes                              -->
+<!-- ─────────────────────────────────────────────────────── -->
+<div class="modal fade" id="modalPermPasses" tabindex="-1" aria-labelledby="modalPermLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0" style="border-radius:18px; background:#182038;">
+            <!-- Header -->
+            <div class="modal-header border-0 p-4 pb-2" style="background:linear-gradient(135deg,#8e2de2,#4a00e0); border-radius:18px 18px 0 0;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalPermLabel">🔑 Permanent Gate Passes</h5>
+                    <p class="mb-0 text-white" style="opacity:0.85; font-size:0.8rem;">Always valid until cancelled by resident</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+            </div>
+            <!-- Search -->
+            <div class="px-4 pt-3 pb-2">
+                <div class="input-group">
+                    <span class="input-group-text border-0" style="background:rgba(255,255,255,0.08);">
+                        <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                    </span>
+                    <input type="text" id="searchPerm" class="form-control border-0"
+                           placeholder="Search visitor name, flat, resident…"
+                           style="background:rgba(255,255,255,0.08); color:#e8eaf0;">
+                </div>
+            </div>
+            <!-- Body — flats as accordion -->
+            <div class="modal-body px-4 py-2">
+                <div id="permPassList">
+                {% for group in perm_by_flat %}
+                <div class="perm-flat-group mb-2"
+                     data-flat="{{ group.flat|lower }}"
+                     data-resident="{% if group.resident %}{{ group.resident.get_full_name|lower }} {{ group.resident.username|lower }}{% endif %}"
+                     data-passes="{% for p in group.passes %}{{ p.visitor_name|lower }} {{ p.purpose|lower }} {% endfor %}">
+
+                    <!-- Flat header (always visible, click to expand) -->
+                    <button class="d-flex align-items-center gap-3 w-100 border-0 p-3 rounded-3 text-start"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#perm-flat-{{ forloop.counter }}"
+                            style="background:rgba(255,255,255,0.06); cursor:pointer;">
+                        <div class="rounded-2 d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:40px;height:40px;background:linear-gradient(135deg,#8e2de2,#4a00e0);">
+                            <i class="fa-solid fa-building text-white"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <p class="fw-bold mb-0" style="color:#e8eaf0;">Flat {{ group.flat }}</p>
+                            <small class="text-muted">
+                                <i class="fa-solid fa-user fa-xs me-1"></i>
+                                {% if group.resident %}{{ group.resident.get_full_name|default:group.resident.username }}{% else %}Resident{% endif %}
+                                &bull; {{ group.passes|length }} pass{{ group.passes|length|pluralize }}
+                            </small>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-muted" style="font-size:0.75rem;"></i>
+                    </button>
+
+                    <!-- Passes list (collapsible) -->
+                    <div id="perm-flat-{{ forloop.counter }}" class="collapse">
+                        <div class="d-flex flex-column gap-1 px-2 pt-2 pb-3">
+                            {% for p in group.passes %}
+                            <div class="perm-pass-row d-flex align-items-center gap-3 p-2 rounded-3"
+                                 style="background:rgba(255,255,255,0.03);">
+                                <i class="fa-solid fa-circle-check text-success" style="font-size:0.8rem;"></i>
+                                <div class="flex-grow-1">
+                                    <span class="fw-semibold" style="font-size:0.85rem;">{{ p.visitor_name }}</span>
+                                    <span class="text-muted" style="font-size:0.75rem;"> &bull; {{ p.purpose|default:"Regular Visitor" }}</span>
+                                    {% if p.phone %}
+                                    <br><span class="text-muted" style="font-size:0.72rem;"><i class="fa-solid fa-phone fa-xs me-1"></i>{{ p.phone }}</span>
+                                    {% endif %}
+                                </div>
+                                <span class="badge bg-success rounded-pill" style="font-size:0.65rem;">Active</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+                {% empty %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-key fa-3x mb-3"></i>
+                    <p class="mb-0">No active permanent passes.</p>
+                </div>
+                {% endfor %}
+
+                    <!-- No results message -->
+                    <div id="permNoResults" class="text-center py-4 text-muted d-none">
+                        <i class="fa-solid fa-magnifying-glass fa-2x mb-2"></i>
+                        <p class="mb-0">No passes match your search.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Temporary passes search ──
+document.getElementById('searchTemp').addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    const items = document.querySelectorAll('.temp-pass-item');
+    let visible = 0;
+    items.forEach(el => {
+        const match = !q || el.dataset.search.includes(q);
+        el.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+    document.getElementById('tempNoResults').classList.toggle('d-none', visible > 0);
+});
+
+// Clear search when modal closes
+document.getElementById('modalTempPasses').addEventListener('hidden.bs.modal', function () {
+    const inp = document.getElementById('searchTemp');
+    inp.value = '';
+    inp.dispatchEvent(new Event('input'));
+});
+
+// ── Permanent passes search ──
+document.getElementById('searchPerm').addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    const groups = document.querySelectorAll('.perm-flat-group');
+    let visible = 0;
+    groups.forEach(el => {
+        const hay = (el.dataset.flat + ' ' + el.dataset.resident + ' ' + el.dataset.passes);
+        const match = !q || hay.includes(q);
+        el.style.display = match ? '' : 'none';
+        if (match) {
+            visible++;
+            // Auto-expand group when searching
+            if (q) {
+                const collapseEl = el.querySelector('.collapse');
+                if (collapseEl) new bootstrap.Collapse(collapseEl, { show: true });
+            }
+        }
+    });
+    document.getElementById('permNoResults').classList.toggle('d-none', visible > 0);
+});
+
+document.getElementById('modalPermPasses').addEventListener('hidden.bs.modal', function () {
+    const inp = document.getElementById('searchPerm');
+    inp.value = '';
+    inp.dispatchEvent(new Event('input'));
+});
+</script>
+{% endblock %}

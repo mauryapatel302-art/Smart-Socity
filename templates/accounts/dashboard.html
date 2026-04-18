@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Smart Society{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Welcome, {{ user.get_full_name|default:user.username }}!</h2>
+    <span class="badge bg-secondary py-2 px-3 fs-6">{{ user.get_role_display }}</span>
+</div>
+
+<div class="row g-4 mt-2">
+    <div class="col-md-4">
+        <div class="card text-center p-4 h-100 border-top border-primary border-4">
+            <i class="fa-solid fa-file-invoice-dollar fa-3x text-primary mb-3"></i>
+            <h5>My Dues</h5>
+            <p class="text-muted">Check pending maintenance and history.</p>
+            <a href="#" class="btn btn-outline-primary btn-sm mt-auto">View Bills</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-4 h-100 border-top border-warning border-4">
+            <i class="fa-solid fa-bullhorn fa-3x text-warning mb-3"></i>
+            <h5>Notice Board</h5>
+            <p class="text-muted">Latest updates and announcements.</p>
+            <a href="#" class="btn btn-outline-warning btn-sm mt-auto">View Notices</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-4 h-100 border-top border-danger border-4">
+            <i class="fa-solid fa-tools fa-3x text-danger mb-3"></i>
+            <h5>Complaints</h5>
+            <p class="text-muted">Track your service requests and issues.</p>
+            <a href="#" class="btn btn-outline-danger btn-sm mt-auto">My Complaints</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

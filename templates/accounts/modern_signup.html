@@ -1,0 +1,403 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | Smart Society</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-deep: #0f131a;
+            --bg-panel: #161c26;
+            --accent-purple: #7c3aed;
+            --accent-purple-hover: #6d28d9;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #2d3748;
+            --input-bg: #1e2532;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* --- Left Panel --- */
+        .left-panel {
+            width: 50%;
+            height: 100vh;
+            position: relative;
+            background: url('/media/backgrounds/signup_bg.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3rem;
+        }
+
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(15, 19, 26, 0.4), rgba(15, 19, 26, 0.7));
+            z-index: 1;
+        }
+
+        .left-panel > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-purple);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .back-pill {
+            position: absolute;
+            top: 3rem;
+            right: 3rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .back-pill:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
+        .tagline-section {
+            max-width: 400px;
+        }
+
+        .tagline-section h2 {
+            font-size: 2.8rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        /* --- Right Panel --- */
+        .right-panel {
+            width: 50%;
+            height: 100vh;
+            background-color: var(--bg-panel);
+            padding: 4rem 10% 2rem 10%;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .form-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .form-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+        }
+
+        .form-header a {
+            color: var(--accent-purple);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .name-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-group {
+            flex: 1;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #4b5563;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .password-toggle:hover {
+            color: white;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .checkbox-group a {
+            color: var(--text-main);
+            text-decoration: underline;
+        }
+
+        .cta-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--accent-purple);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .cta-btn:hover {
+            background-color: var(--accent-purple-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.2);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0.75rem;
+            background: transparent;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 1024px) {
+            .left-panel { display: none; }
+            .right-panel { width: 100%; padding: 4rem 15%; }
+        }
+
+        /* Django Error Style override */
+        .invalid-feedback {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .is-invalid {
+            border-color: #ef4444 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="left-panel">
+        <div class="logo-section">
+            <div class="logo-icon">S</div>
+            <span class="logo-text">Smart Society</span>
+        </div>
+
+        <a href="{% url 'landing' %}" class="back-pill">Back to website &rarr;</a>
+
+        <div class="tagline-section">
+            <h2>Seamless Living, Smarter Communities.</h2>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="form-header">
+            <h1>Create an account</h1>
+            <p>Already have an account? <a href="{% url 'role_login' role_param %}">Log in</a></p>
+        </div>
+
+        <form method="post" class="form-grid">
+            {% csrf_token %}
+            
+            <div class="name-row">
+                <div class="form-group">
+                    <label class="form-label">First name</label>
+                    <input type="text" name="first_name" class="input-field" placeholder="John" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last name</label>
+                    <input type="text" name="last_name" class="input-field" placeholder="Doe" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="input-field" placeholder="johndoe123" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="input-field" placeholder="john@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="input-wrapper">
+                    <input type="password" name="password" id="password" class="input-field" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required>
+                    <i class="fa-regular fa-eye password-toggle" id="togglePassword"></i>
+                </div>
+            </div>
+
+            {% if role_param == 'resident' %}
+            <div class="form-group">
+                <label class="form-label">Select your Flat</label>
+                <select name="flat" class="input-field" required>
+                    <option value="" disabled selected>Choose your flat...</option>
+                    {% for flat in form.flat.field.queryset %}
+                        <option value="{{ flat.id }}">{{ flat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="terms" required>
+                <label for="terms">I agree to the <a href="#">Terms & Conditions</a></label>
+            </div>
+
+            <button type="submit" class="cta-btn">Create account</button>
+
+            <div class="divider">Or register with</div>
+
+            <div class="social-buttons">
+                <button type="button" class="social-btn">
+                    <i class="fa-brands fa-google"></i> Google
+                </button>
+                <button type="button" class="social-btn">
+                    <i class="fa-brands fa-apple"></i> Apple
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function (e) {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
+</body>
+</html>

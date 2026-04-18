@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% block title %}Security Dashboard - Smart Society{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">🛡️ Gate Security Console</h2>
+    <a href="{% url 'visitors:create_visitor' %}" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus me-2"></i>Log New Visitor
+    </a>
+</div>
+
+<!-- Stat Cards Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 text-center p-3" style="border-radius:14px; background:linear-gradient(135deg,#00c6fb,#005bea);">
+            <p class="text-white-50 small fw-semibold text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.07em;">Currently Inside</p>
+            <h2 class="text-white fw-bold mb-0">{{ active_count }}</h2>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 text-center p-3" style="border-radius:14px; background:linear-gradient(135deg,#11998e,#38ef7d);">
+            <p class="text-white-50 small fw-semibold text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.07em;">Total Visitors Today</p>
+            <h2 class="text-white fw-bold mb-0">{{ total_today }}</h2>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 text-center p-3" style="border-radius:14px; background:linear-gradient(135deg,#f7971e,#ffd200);">
+            <p class="text-white-50 small fw-semibold text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.07em;">Temp Passes Today</p>
+            <h2 class="text-white fw-bold mb-0">{{ temp_pass_count }}</h2>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 text-center p-3" style="border-radius:14px; background:linear-gradient(135deg,#8e2de2,#4a00e0);">
+            <p class="text-white-50 small fw-semibold text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.07em;">Permanent Passes</p>
+            <h2 class="text-white fw-bold mb-0">{{ perm_pass_count }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT: Visitor Log -->
+    <div class="col-lg-7">
+
+        <!-- Active Visitors -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius:14px;">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0">🟢 Currently Inside</h6>
+                <span class="badge bg-success rounded-pill">{{ active_count }} active</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Name</th>
+                                <th>Flat</th>
+                                <th>Type</th>
+                                <th>Entry</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in active_visitors %}
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="fw-semibold">{{ v.name }}</span>
+                                    <br><small class="text-muted">{{ v.purpose }}</small>
+                                </td>
+                                <td>{{ v.flat }}</td>
+                                <td><span class="badge bg-secondary rounded-pill">{{ v.get_visitor_type_display }}</span></td>
+                                <td>{{ v.entry_time|time:"H:i" }}</td>
+                                <td>
+                                    <form method="post" action="{% url 'visitors:checkout_visitor' v.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm btn-outline-danger">Check Out</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center py-3 text-muted">No active visitors inside.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Visitors Today -->
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body p-3">
+                <h6 class="fw-bold mb-0">📋 All Visitors Today</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Name</th>
+                                <th>Flat</th>
+                                <th>Type</th>
+                                <th>In</th>
+                                <th>Out</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in all_visitors_today %}
+                            <tr>
+                                <td class="ps-4 fw-semibold">{{ v.name }}</td>
+                                <td>{{ v.flat }}</td>
+                                <td><span class="badge bg-secondary rounded-pill" style="font-size:0.68rem;">{{ v.get_visitor_type_display }}</span></td>
+                                <td>{{ v.entry_time|time:"H:i" }}</td>
+                                <td>
+                                    {% if v.exit_time %}
+                                        {{ v.exit_time|time:"H:i" }}
+                                    {% else %}
+                                        <span class="badge bg-success rounded-pill" style="font-size:0.68rem;">Inside</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center py-3 text-muted">No visitors recorded today.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT: Gate Passes -->
+    <div class="col-lg-5 d-flex flex-column gap-4">
+
+        <!-- Today's Temporary Passes -->
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0">⏱️ Temporary Passes — Today</h6>
+                <span class="badge rounded-pill" style="background:linear-gradient(135deg,#f7971e,#ffd200); color:#1a1a1a;">{{ temp_pass_count }}</span>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for p in today_temp_passes %}
+                    <li class="list-group-item py-3 px-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="fw-semibold mb-0">{{ p.visitor_name }}</p>
+                                <small class="text-muted">{{ p.purpose|default:"Visitor" }} &bull; {{ p.flat }}</small>
+                                {% if p.phone %}<br><small class="text-muted"><i class="fa-solid fa-phone fa-xs me-1"></i>{{ p.phone }}</small>{% endif %}
+                            </div>
+                            <span class="badge bg-warning text-dark rounded-pill">Today</span>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center py-4 text-muted">No temporary passes for today.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Active Permanent Passes -->
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0">🔑 Active Permanent Passes</h6>
+                <span class="badge rounded-pill" style="background:linear-gradient(135deg,#8e2de2,#4a00e0);">{{ perm_pass_count }}</span>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for p in permanent_passes %}
+                    <li class="list-group-item py-3 px-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="fw-semibold mb-0">{{ p.visitor_name }}</p>
+                                <small class="text-muted">{{ p.purpose|default:"Regular Visitor" }} &bull; {{ p.flat }}</small>
+                                {% if p.phone %}<br><small class="text-muted"><i class="fa-solid fa-phone fa-xs me-1"></i>{{ p.phone }}</small>{% endif %}
+                            </div>
+                            <span class="badge bg-success rounded-pill">Always Valid</span>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center py-4 text-muted">No active permanent passes.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

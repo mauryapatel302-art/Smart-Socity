@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Polls - Smart Society{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fa-solid fa-square-poll-vertical me-2 text-info"></i>Community Polls</h2>
+    <div class="d-flex gap-2">
+        <a href="{% url 'events:events_list' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-calendar-star me-2"></i>Events</a>
+        {% if user.is_secretary %}
+            <a href="{% url 'events:create_poll' %}" class="btn btn-info text-white"><i class="fa-solid fa-plus me-2"></i>Create Poll</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    {% for poll in polls %}
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm border-0 border-top border-info border-4" style="background-color: var(--bg-panel); color: var(--text-main);">
+            <div class="card-header pt-3 pb-0 border-0" style="background-color: transparent;">
+                <div class="d-flex justify-content-between">
+                    <h5 class="mb-0">{{ poll.question }}</h5>
+                    <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{ poll.created_at|date:"d M Y" }}</small>
+                </div>
+            </div>
+            <div class="card-body pt-3">
+                <p class="text-muted small mb-3">Created by Smart Society Secretary</p>
+                
+                {% if user.is_resident and poll.id not in user_voted_poll_ids %}
+                    <form method="post" action="{% url 'events:vote_poll' poll.id %}">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            {% for option in poll.options.all %}
+                            <label class="btn btn-outline-info text-start d-flex align-items-center">
+                                <input type="radio" name="option_id" value="{{ option.id }}" class="me-3" required>
+                                {{ option.option_text }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button type="submit" class="btn btn-info text-white px-4">Cast Vote</button>
+                        </div>
+                    </form>
+                {% else %}
+                    <!-- Results View -->
+                    <div class="d-grid gap-3">
+                        {% for option in poll.options.all %}
+                        {% with total=poll.votes.count %}
+                        <div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>{{ option.option_text }}</span>
+                                <span class="fw-bold">{{ option.votes.count }} votes</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-info poll-bar" role="progressbar"
+                                    data-votes="{{ option.votes.count }}"
+                                    data-total="{{ total }}"
+                                    style="width: 0%">
+                                </div>
+                            </div>
+                        </div>
+                        {% endwith %}
+                        {% endfor %}
+                    </div>
+                    {% if user.is_resident %}
+                        <div class="alert alert-success mt-4 mb-0 py-2 text-center">
+                            <i class="fa-solid fa-circle-check me-2"></i>You have already voted
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="text-muted fs-5">No active polls right now.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.poll-bar').forEach(function (bar) {
+            const votes = parseInt(bar.dataset.votes) || 0;
+            const total = parseInt(bar.dataset.total) || 0;
+            const pct = total > 0 ? Math.round((votes / total) * 100) : 0;
+            bar.style.width = pct + '%';
+            bar.setAttribute('aria-valuenow', pct);
+        });
+    });
+</script>
+{% endblock %}

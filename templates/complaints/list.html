@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Complaints - Smart Society{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fa-solid fa-tools me-2 text-primary"></i>Complaints Hub</h2>
+    {% if user.is_resident %}
+        <a href="{% url 'complaints:create' %}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>New Complaint</a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Complaint</th>
+                        <th>Category</th>
+                        {% if user.is_secretary %}
+                        <th>Raised By</th>
+                        {% endif %}
+                        <th>Status</th>
+                        {% if user.is_secretary %}
+                        <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr>
+                        <td>{{ complaint.created_at|date:"d M Y" }}</td>
+                        <td>
+                            <strong>{{ complaint.title }}</strong><br>
+                            <small class="text-muted">{{ complaint.description|truncatechars:100 }}</small>
+                            {% if complaint.photo %}
+                                <br><a href="{{ complaint.photo.url }}" target="_blank" class="badge bg-secondary text-decoration-none mt-1"><i class="fa-solid fa-image me-1"></i>View Photo</a>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-info">{{ complaint.get_category_display }}</span></td>
+                        {% if user.is_secretary %}
+                        <td>{{ complaint.resident.get_full_name|default:complaint.resident.username }} ({{ complaint.resident.flat|default:'N/A' }})</td>
+                        {% endif %}
+                        <td>
+                            {% if complaint.status == 'OPEN' %}
+                                <span class="badge bg-danger">Open</span>
+                            {% elif complaint.status == 'IN_PROGRESS' %}
+                                <span class="badge bg-warning">In Progress</span>
+                            {% else %}
+                                <span class="badge bg-success">Resolved</span>
+                            {% endif %}
+                        </td>
+                        {% if user.is_secretary %}
+                        <td>
+                            <form method="post" action="{% url 'complaints:update_status' complaint.id %}" class="d-inline-flex">
+                                {% csrf_token %}
+                                <select name="status" class="form-select form-select-sm me-2" style="width:130px;" onchange="this.form.submit()">
+                                    <option value="OPEN" {% if complaint.status == 'OPEN' %}selected{% endif %}>Open</option>
+                                    <option value="IN_PROGRESS" {% if complaint.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                                    <option value="RESOLVED" {% if complaint.status == 'RESOLVED' %}selected{% endif %}>Resolved</option>
+                                </select>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">No complaints found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

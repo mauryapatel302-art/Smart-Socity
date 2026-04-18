@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Create Poll - Smart Society{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-sm border-top border-info border-4">
+            <h3 class="mb-4"><i class="fa-solid fa-square-poll-vertical text-info me-2"></i>Create a New Poll</h3>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Poll Question</label>
+                    <input type="text" name="question" class="form-control" required placeholder="What should we decide?">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Options</label>
+                    <div class="d-grid gap-2" id="optionsContainer">
+                        <input type="text" name="options" class="form-control" placeholder="Option 1" required>
+                        <input type="text" name="options" class="form-control" placeholder="Option 2" required>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addOption()">
+                        <i class="fa-solid fa-plus me-1"></i>Add Option
+                    </button>
+                </div>
+                
+                <button type="submit" class="btn btn-info text-white w-100 fw-bold">Publish Poll</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let optionCount = 2;
+    function addOption() {
+        optionCount++;
+        const container = document.getElementById('optionsContainer');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'options';
+        input.className = 'form-control';
+        input.placeholder = `Option ${optionCount}`;
+        input.required = true;
+        container.appendChild(input);
+    }
+</script>
+{% endblock %}
