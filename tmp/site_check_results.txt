@@ -1,0 +1,69 @@
+--- ROLE: Secretary ---
+Login Success: True
+  dashboard                      : 200 OK
+  profile                        : 200 OK
+  profile_edit                   : 200 OK
+  resident_list                  : 200 OK
+  generate_bills                 : 200 OK
+  my_bills                       : 302 (Redirect to /dashboard/)
+  billing_status                 : 200 OK
+  complaints:list                : 200 OK
+  complaints:create              : 302 (Redirect to /dashboard/)
+  core:notices                   : 200 OK
+  core:create_notice             : 200 OK
+  core:directory                 : 200 OK
+  events:events_list             : 200 OK
+  events:create_event            : 200 OK
+  events:polls_list              : 200 OK
+  events:create_poll             : 200 OK
+  visitors:security_dashboard    : 302 (Redirect to /dashboard/)
+  visitors:create_visitor        : 302 (Redirect to /dashboard/)
+  visitors:my_gate_passes        : 302 (Redirect to /dashboard/)
+  visitors:create_gate_pass      : 302 (Redirect to /dashboard/)
+
+--- ROLE: Resident ---
+Login Success: True
+  dashboard                      : 200 OK
+  profile                        : 200 OK
+  profile_edit                   : 200 OK
+  resident_list                  : 302 (Redirect to /dashboard/)
+  generate_bills                 : 302 (Redirect to /dashboard/)
+  my_bills                       : 200 OK
+  billing_status                 : 302 (Redirect to /dashboard/)
+  complaints:list                : 200 OK
+  complaints:create              : 200 OK
+  core:notices                   : 200 OK
+  core:create_notice             : 302 (Redirect to /core/notices/)
+  core:directory                 : 200 OK
+  events:events_list             : 200 OK
+  events:create_event            : 302 (Redirect to /events/)
+  events:polls_list              : 200 OK
+  events:create_poll             : 302 (Redirect to /events/polls/)
+  visitors:security_dashboard    : 302 (Redirect to /dashboard/)
+  visitors:create_visitor        : 302 (Redirect to /dashboard/)
+  visitors:my_gate_passes        : 200 OK
+  visitors:create_gate_pass      : 200 OK
+
+--- ROLE: Security ---
+Login Success: True
+  dashboard                      : 200 OK
+  profile                        : 200 OK
+  profile_edit                   : 200 OK
+  resident_list                  : 302 (Redirect to /dashboard/)
+  generate_bills                 : 302 (Redirect to /dashboard/)
+  my_bills                       : 302 (Redirect to /dashboard/)
+  billing_status                 : 302 (Redirect to /dashboard/)
+  complaints:list                : 200 OK
+  complaints:create              : 302 (Redirect to /dashboard/)
+  core:notices                   : 200 OK
+  core:create_notice             : 302 (Redirect to /core/notices/)
+  core:directory                 : 200 OK
+  events:events_list             : 200 OK
+  events:create_event            : 302 (Redirect to /events/)
+  events:polls_list              : 200 OK
+  events:create_poll             : 302 (Redirect to /events/polls/)
+  visitors:security_dashboard    : 200 OK
+  visitors:create_visitor        : 200 OK
+  visitors:my_gate_passes        : 302 (Redirect to /dashboard/)
+  visitors:create_gate_pass      : 302 (Redirect to /dashboard/)
+
